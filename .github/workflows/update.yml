@@ -1,0 +1,55 @@
+name: update
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'
+jobs:
+  update-flake:
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+      with:
+        diagnostic-endpoint: "http://127.0.0.1:80"
+    - run: nix flake update
+    - name: Upload flake.lock
+      uses: actions/upload-artifact@v4
+      with:
+        name: updated-flake-lock
+        path: flake.lock
+
+  tests:
+    needs: [update-flake]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+      with:
+        diagnostic-endpoint: "http://127.0.0.1:80"
+    - name: Download updated flake.lock
+      uses: actions/download-artifact@v4
+      with:
+        name: updated-flake-lock
+    - run: nix flake check
+    - run: nix build
+
+  push-update:
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download updated flake.lock
+      uses: actions/download-artifact@v4
+      with:
+        name: updated-flake-lock
+    - run: git config --global user.email "action@github.com"
+    - run: git config --global user.name "GitHub Action"
+    - run: git add flake.lock
+    - run: git diff --staged --quiet || (git commit -m "update" && git push)
