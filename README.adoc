@@ -1,0 +1,32 @@
+= arkenfox_user.js.nix
+:reproducible:
+
+https://github.com/arkenfox/user.js[arkenfox/user.js] as https://nix.dev[nix] attrset.
+ +
+Intended to be used with https://nix-community.github.io/home-manager/options.xhtml#opt-programs.firefox.profiles._name_.settings[programs.firefox.profiles.<name>.settings] and/or https://nix-community.github.io/home-manager/options.xhtml#opt-programs.librewolf.settings[programs.librewolf.settings] https://github.com/nix-community/home-manager[Home Manager] options
+
+== How it works
+
+Some code (such as function declaration, several variables and function calls) is added user.js and then evaluated using nodejs,
+as result JSON representation of user.js options is printed on stdout (as JSON object, where key is preference name and value as preference value),
+then ruby script (source in flake.nix) parses JSON from stdin and serialize it as nix expression (attrset) to stdout, that is written in nix store as resultint output (out)
+ +
+Also GitHub Actions will update flake inputs and check if it builds
+
+== Usage
+
+1. Add to flake inputs, like
++
+[source,nix]
+----
+arkenfox-user-js-nix.url = "github:oleg-khil/arkenfox_user.js.nix";
+# optionally override nixpkgs to your version
+# arkenfox-user-js-nix.inputs.nixpkgs.follows = "nixpkgs";
+----
+
+2. import it and override preferences that you like to be changed
++
+[source,nix]
+----
+(import "${inputs.arkenfox-user-js-nix.packages."${pkgs.system}".arkenfox-user-js}") // { /* here goes your overrides as nix attrset */ }
+----
