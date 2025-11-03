@@ -3,11 +3,11 @@
     "arkenfox-user-js": {
       "flake": false,
       "locked": {
-        "lastModified": 1755109759,
-        "narHash": "sha256-+DN5bKev9IyefMikOqEWZf/u0flJbLAxwEotGhKSSS4=",
+        "lastModified": 1762131136,
+        "narHash": "sha256-LPDiiEPOZu5Ah5vCLyCMT3w1uoBhUjyqoPWCOiLVLnw=",
         "owner": "arkenfox",
         "repo": "user.js",
-        "rev": "9103afafff2b5287b495c1a1268968fdb447d66f",
+        "rev": "0f14e030b3a9391e761c03ce3c260730a78a4db6",
         "type": "github"
       },
       "original": {
