@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/install-nix-action@v31
       with:
-        diagnostic-endpoint: "http://127.0.0.1:80"
+        nix_path: nixpkgs=flake:nixpkgs/nixos-unstable
     - run: nix flake update
     - name: Upload flake.lock
       uses: actions/upload-artifact@v4
@@ -25,13 +25,13 @@ jobs:
     needs: [update-flake]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/install-nix-action@v31
       with:
-        diagnostic-endpoint: "http://127.0.0.1:80"
+        nix_path: nixpkgs=flake:nixpkgs/nixos-unstable
     - name: Download updated flake.lock
       uses: actions/download-artifact@v4
       with:
